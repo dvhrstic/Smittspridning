@@ -133,12 +133,13 @@ public class Contagion {
             }
         }
         System.out.println(" Populations has: " + counter + " sick persons");
+
         printMatrix(population);
 
 
-        ArrayList <Individual> newSickList = new ArrayList<Individual>();                                      
+        ArrayList <Individual> newSickList = new ArrayList<Individual>();
+
         for (Individual individual :sickList) {
-            
             if(individual.isDead()){
                 System.out.println(" STORT FEEEL--------------------");
                 if(individual.isImmune()){
@@ -150,10 +151,7 @@ public class Contagion {
             if (individual.getDaysLeft() == 0) {
                 individual.setImmune();
                 population[individual.getX()][individual.getY()].setImmune();
-                //listOfSick.remove(individual);
-                // System.out.println(" individen är : immun " + " -> " + individual.isImmune());
-                // System.out.println(" individen är : sick " + " -> " + individual.isSick());
-                // System.out.println(" individen är : dead " + " -> " + individual.isDead());
+
                 continue;
             }
 
@@ -161,11 +159,12 @@ public class Contagion {
             // Check if neighbours are dead
             for (Pair<Integer, Integer> neighbourCoordinates: neighbours){
                 Individual neighbour = population[neighbourCoordinates.getKey()][neighbourCoordinates.getValue()];
-                if(!neighbour.isDead() && !neighbour.isImmune()){
+                if(!neighbour.isDead() && !neighbour.isImmune() && !neighbour.isSick()){
                     if(rand.nextDouble() < S){
                         population[neighbour.getX()][neighbour.getY()].setSick();
                         population[neighbour.getX()][neighbour.getY()].setDaysLeft(randomSickDays(minDay, maxDay, rand));
                         newSickList.add(population[neighbour.getX()][neighbour.getY()]);
+
                     }
                 }
             }
@@ -176,19 +175,11 @@ public class Contagion {
             // Even if one person gets 1 day of being sick it can still 
             // contaminate others that day
             if (rand.nextDouble() < L) {
-
-                // System.out.println("Dead or not");
-                // System.out.println(individual.isDead());
                 individual.setDead();
-                //System.out.println(individual.isDead());
-                //System.out.println(" Before " + population[individual.getX()][individual.getY()].isDead());
-                //population[individual.getX()][individual.getY()].setDead();
                 population[individual.getX()][individual.getY()] = individual;
-                //System.out.println(" After" + population[individual.getX()][individual.getY()].isDead());
-
-                //listOfSick.remove(individual);
                 continue;
             }else{
+
                 int daysLeft = population[individual.getX()][individual.getY()].getDaysLeft();
                 //System.out.println(" Before " + individual.getDaysLeft());
                 individual.setDaysLeft(daysLeft - 1);
@@ -203,7 +194,7 @@ public class Contagion {
         }
         printMatrix(population);
         Pair<ArrayList<Individual>,Individual[][]> result = new Pair<>(newSickList, population);
-        return  result;
+        return result;
     }
 
     private static void printMatrix (Individual [][] population){
@@ -223,5 +214,6 @@ public class Contagion {
             }
             System.out.println();
         }
+        System.out.println("------------------------------");
     }
 }
