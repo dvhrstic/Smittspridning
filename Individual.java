@@ -1,7 +1,8 @@
 public class Individual {
-    private int daysUntillImmune, x,y;
 
+    private int daysUntillImmune, x,y;
     private boolean sick, immune, dead;
+    
     public Individual (){
         this.sick = false;
         this.immune = false;
