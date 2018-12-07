@@ -3,32 +3,68 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
+//import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
 
 public class Contagion {
     public static void main(String[] args) {
-        int N = 10;
-        double S = 0.5;
-        double L = 0.8;
-        int minDay = 2;
-        int maxDay = 5;
-        int initalSick = 5;
-        Random rand = new Random(57);
+        //defining the variables
+        int N,minDay,maxDay,initalSick;
+        double S, L;
+        ArrayList<ArrayList<Integer>> initialPositions;
+        ArrayList<String> initialList;
+        System.out.println(args);
+        if(args.length == 0){
+            N = 20;
+            S = 0.09;
+            L = 0.14;
+            minDay = 2;
+            maxDay = 6;
+            initalSick = 4; 
+        }else{
+            N = Integer.parseInt(args[0]);
+            S = Double.parseDouble(args[1]);
+            L = Double.parseDouble(args[2]);
+            minDay = Integer.parseInt(args[3]);
+            maxDay = Integer.parseInt(args[4]);
+            initalSick = Integer.parseInt(args[5]);
+            initialList = new ArrayList<String>(Arrays.asList(string.split(",")));
+            initialPositions = new ArrayList<ArrayList<Integer>>();
+            for (int i=0; i < initialList.size(); i=i+2){
+                ArraysList<Integer> position =new ArrayList<Integer>();
+                position.add(Integer.parseInt(initialList.get(i)));
+                position.add(Integer.parseInt(initialList.get(i + 1)));
+                initialPositions.add(position);
+            }
+
+        }
+        Random rand = new Random(1);    
 
         ArrayList <Individual> listOfSick = new ArrayList<>(initalSick);
-        
+
+        outerloop:
+        int positionX, positionY;
         for (int i = 0; i < initalSick; i++) {
+
             Individual individual = new Individual();
-            int positionX = rand.nextInt(N);
-            int positionY = rand.nextInt(N); 
+            if(initialPosition.equals(null)){
+                positionX = rand.nextInt(N);
+                positionY = rand.nextInt(N);
+            }
+            else if (initialPosition.get(i).equals(null)){
+                positionX = rand.nextInt(N);
+                positionY = rand.nextInt(N); 
+            }else{
+                positionX = initialPosition.get(i).get(0);
+                positionY = initlaPosition.get(i).get(1);
+            }
             // check if the list already contains the indexes
             for(Individual currIndividual : listOfSick){
                 if(currIndividual.getX() == positionX && currIndividual.getY() == positionY){
                     i -= 1;
-                    continue;
+                    continue outerloop;
                 }
-
             }
             individual.setX(positionX);
             individual.setY(positionY);
@@ -62,6 +98,7 @@ public class Contagion {
         while(resultPair.getKey().size() > 0){
             resultPair = runOneDay(resultPair.getValue(),  S, L,  minDay,  maxDay, resultPair.getKey(), rand);
         }
+
     }
     private static int randomSickDays(int minDay, int maxDay, Random r){
         if (minDay >= maxDay) {
@@ -118,32 +155,32 @@ public class Contagion {
                                                          int minDay,
                                                          int maxDay,
                                   ArrayList <Individual> sickList,
-                                                        Random rand){
+                                                        Random rand){        
 
-        System.out.println("number of sick today: " + sickList.size());
-        int counter = 0;
-        for (Individual [] x: population) {
-            for (Individual y : x) {
-                if(y.isSick()){
-                    if(!y.isImmune())
-                        counter++;
-                    else System.out.println("feeeeeel");
+        int currentlySick = sickList.size();
+        int deathsToday = 0;
+        int contagionsToday = 0;
+        int immuneToday = 0;
+        int totalNumbDead = 0;
 
-                }
-            }
+        try
+        {
+            Thread.sleep(500);
         }
-        System.out.println(" Populations has: " + counter + " sick persons");
-
-        printMatrix(population);
-
-
+        catch(InterruptedException ex)
+        {
+            Thread.currentThread().interrupt();
+        }
+        
         ArrayList <Individual> newSickList = new ArrayList<Individual>();
 
         for (Individual individual :sickList) {
+
+//            System.out.println("(" + individual.getX() +" , " +individual.getY() + ")");
             if(individual.isDead()){
-                System.out.println(" STORT FEEEL--------------------");
+
                 if(individual.isImmune()){
-                    System.out.println(" EXTRA STOR FEL ---------------");
+
                 }
                continue;
             }
@@ -151,7 +188,7 @@ public class Contagion {
             if (individual.getDaysLeft() == 0) {
                 individual.setImmune();
                 population[individual.getX()][individual.getY()].setImmune();
-
+                immuneToday++;
                 continue;
             }
 
@@ -164,7 +201,7 @@ public class Contagion {
                         population[neighbour.getX()][neighbour.getY()].setSick();
                         population[neighbour.getX()][neighbour.getY()].setDaysLeft(randomSickDays(minDay, maxDay, rand));
                         newSickList.add(population[neighbour.getX()][neighbour.getY()]);
-
+                        contagionsToday++;
                     }
                 }
             }
@@ -177,21 +214,36 @@ public class Contagion {
             if (rand.nextDouble() < L) {
                 individual.setDead();
                 population[individual.getX()][individual.getY()] = individual;
+                deathsToday++;
                 continue;
             }else{
 
                 int daysLeft = population[individual.getX()][individual.getY()].getDaysLeft();
-                //System.out.println(" Before " + individual.getDaysLeft());
                 individual.setDaysLeft(daysLeft - 1);
-                //System.out.println(" After " + individual.getDaysLeft());
-                //System.out.println(" Before " + population[individual.getX()][individual.getY()].getDaysLeft());
                 population[individual.getX()][individual.getY()].setDaysLeft(daysLeft - 1);
-                //System.out.println(" After " + population[individual.getX()][individual.getY()].getDaysLeft());
-                //System.out.println(" ");
                 newSickList.add(individual);
             } 
-
         }
+
+        for (Individual [] x: population) {
+            for (Individual y : x) {
+                if(y.isDead()) totalNumbDead++;
+                if(y.isSick()){
+                    if(y.isImmune())
+                        System.out.println("feeeeeel");
+                }
+            }
+        }
+
+
+        System.out.println(" Antal sjuka: " + newSickList.size() + ">" + " smittadeIdag "  + contagionsToday);
+        System.out.print("Sm:" + contagionsToday);
+        System.out.print(" , A: " + deathsToday);
+        System.out.print(" ,I: " + immuneToday);
+        System.out.print(" ,Sj: " + newSickList.size());
+        System.out.print(" ,ackSm: " + (newSickList.size() + totalNumbDead));
+        System.out.println(" , ackA: " + totalNumbDead);
+
         printMatrix(population);
         Pair<ArrayList<Individual>,Individual[][]> result = new Pair<>(newSickList, population);
         return result;
