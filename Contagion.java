@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
 
 //import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
 
@@ -12,8 +13,8 @@ public class Contagion {
         //defining the variables
         int N,minDay,maxDay,initalSick;
         double S, L;
-        ArrayList<ArrayList<Integer>> initialPositions;
-        ArrayList<String> initialList;
+        ArrayList<ArrayList<Integer>> initialPositions = null;
+        ArrayList<String> initialList = null;
         System.out.println(args);
         if(args.length == 0){
             N = 20;
@@ -29,10 +30,10 @@ public class Contagion {
             minDay = Integer.parseInt(args[3]);
             maxDay = Integer.parseInt(args[4]);
             initalSick = Integer.parseInt(args[5]);
-            initialList = new ArrayList<String>(Arrays.asList(string.split(",")));
+            initialList = new ArrayList<String>(Arrays.asList(args[6].split(",")));
             initialPositions = new ArrayList<ArrayList<Integer>>();
             for (int i=0; i < initialList.size(); i=i+2){
-                ArraysList<Integer> position =new ArrayList<Integer>();
+                ArrayList<Integer> position =new ArrayList<Integer>();
                 position.add(Integer.parseInt(initialList.get(i)));
                 position.add(Integer.parseInt(initialList.get(i + 1)));
                 initialPositions.add(position);
@@ -42,22 +43,20 @@ public class Contagion {
         Random rand = new Random(1);    
 
         ArrayList <Individual> listOfSick = new ArrayList<>(initalSick);
-
         outerloop:
-        int positionX, positionY;
         for (int i = 0; i < initalSick; i++) {
-
+            int positionX, positionY;
             Individual individual = new Individual();
-            if(initialPosition.equals(null)){
+            if(initialPositions.equals(null)){
                 positionX = rand.nextInt(N);
                 positionY = rand.nextInt(N);
             }
-            else if (initialPosition.get(i).equals(null)){
+            else if (initialPositions.get(i).equals(null)){
                 positionX = rand.nextInt(N);
                 positionY = rand.nextInt(N); 
             }else{
-                positionX = initialPosition.get(i).get(0);
-                positionY = initlaPosition.get(i).get(1);
+                positionX = initialPositions.get(i).get(0);
+                positionY = initialPositions.get(i).get(1);
             }
             // check if the list already contains the indexes
             for(Individual currIndividual : listOfSick){
@@ -71,7 +70,6 @@ public class Contagion {
             individual.setDaysLeft(randomSickDays(minDay, maxDay,rand));
             listOfSick.add(individual);
 
-            //System.out.println(listOfSick.get(i));
         }
 
         Individual [][] population = new Individual[N][N];
