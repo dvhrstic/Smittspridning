@@ -9,12 +9,15 @@ import java.util.Arrays;
 //import javax.swing.plaf.basic.BasicInternalFrameTitlePane.SystemMenuBar;
 
 public class Contagion {
+    public static int accContagion;
     public static void main(String[] args) {
         //defining the variables
         int N,minDay,maxDay,initalSick;
+
         double S, L;
         ArrayList<ArrayList<Integer>> initialPositions = null;
         ArrayList<String> initialList = null;
+        accContagion = 0;
         System.out.println(args);
         if(args.length == 0){
             N = 20;
@@ -47,7 +50,7 @@ public class Contagion {
         for (int i = 0; i < initalSick; i++) {
             int positionX, positionY;
             Individual individual = new Individual();
-            if(initialPositions.equals(null)){
+            if(initialPositions == null){
                 positionX = rand.nextInt(N);
                 positionY = rand.nextInt(N);
             }
@@ -200,6 +203,7 @@ public class Contagion {
                         population[neighbour.getX()][neighbour.getY()].setDaysLeft(randomSickDays(minDay, maxDay, rand));
                         newSickList.add(population[neighbour.getX()][neighbour.getY()]);
                         contagionsToday++;
+                        accContagion++;
                     }
                 }
             }
@@ -239,7 +243,7 @@ public class Contagion {
         System.out.print(" , A: " + deathsToday);
         System.out.print(" ,I: " + immuneToday);
         System.out.print(" ,Sj: " + newSickList.size());
-        System.out.print(" ,ackSm: " + (newSickList.size() + totalNumbDead));
+        System.out.print(" ,ackSm: " + accContagion);
         System.out.println(" , ackA: " + totalNumbDead);
 
         printMatrix(population);
