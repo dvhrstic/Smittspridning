@@ -8,34 +8,44 @@ import matplotlib.pyplot as plt
 
 # S is a probability
 
-files = glob.glob('./*.csv')
+files = sorted(glob.glob('./*.csv'))
 mean = np.zeros(len(files))
 std = np.zeros(len(files))
+probabilities=[]
 for i,file_name in enumerate(files):
 	S = re.findall("\d+\.\d+", file_name)[0]
-	print(S)
+	probabilities.append(S)
+	print(file_name)
 	df = read_csv(file_name, header=None, usecols=[4])
 	df["day"] = np.arange(100)
 	df.columns = ["smittade", "day"]
-	
 	smitt_array = np.asarray(df["smittade"])
+	mean[i] = smitt_array.mean() /20
+	std[i] = smitt_array.std() /20
+	print(i)
 
-	mean[i] = smitt_array.mean()
-	std[i] = smitt_array.std()
+# width of the bars
+barWidth = 0.3
+ 
+# Choose the height of the blue bars
+bars1 = mean
+ 
+# Choose the height of the error bars (bars1)
+yer1 = std
+  
+# The x position of bars
+r1 = np.arange(len(bars1))
+#r2 = [x + barWidth for x in r1]
+ 
+# Create blue bars
+plt.bar(r1 + 0.3, bars1, width = barWidth, color = 'blue',edgecolor = 'black', yerr=yer1, capsize=5, label='Andel sjuka')
 
-
-print(mean)
-print(std)
-
-df_final = pd.DataFrame()
-df_final['mean']=mean
-print(df_final)
-plt.title("Konfidens intervallet")
-plt.errorbar(df_final.index,df_final, xerr=0.5, yerr=2*std, linestyle='')
+# general layout
+plt.xticks([r + barWidth for r in range(len(bars1))], probabilities, rotation=45)
+plt.ylabel('Andel sjuka (%)')
+plt.xlabel('Smittsannolikhet')
+plt.title("Andel sjuka med konfidensgrad 95 %")
+plt.plot(r1+0.5,np.ones(len(mean))*50, 'r-')
+ 
+# Show graphic
 plt.show()
-
-# Calculate the mean of the data
-
-# Calculate the standard deviation
-
-# Calculate margin of the error 2 * std
